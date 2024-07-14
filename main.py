@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter.colorchooser import askcolor
 from tkinter import filedialog
 import json
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image
 
 class Patch:
     def __init__(self, size, color, coords):
@@ -114,6 +114,7 @@ class QuiltDesignerApp:
         if item:
             self.selected_patch = item[0]
             self.offset = (x - self.canvas.coords(self.selected_patch)[0], y - self.canvas.coords(self.selected_patch)[1])
+            self.highlight_patch(self.selected_patch)
 
     def drag(self, event):
         x, y = event.x, event.y
@@ -131,7 +132,15 @@ class QuiltDesignerApp:
             y = round(y / self.grid_size) * self.grid_size
 
             self.canvas.coords(self.selected_patch, x, y, x + self.grid_size, y + self.grid_size)
+            self.unhighlight_patch(self.selected_patch)
             del self.selected_patch
+
+    def highlight_patch(self, patch):
+        self.canvas.itemconfig(patch, outline="red", width=3)
+
+    def unhighlight_patch(self, patch):
+        _, patch_obj = next(p for p in self.patches if p[0] == patch)
+        self.canvas.itemconfig(patch, outline=patch_obj.color, width=1)
 
     def group_selected_patches(self):
         if not self.selected_patches:
